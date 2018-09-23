@@ -1,6 +1,11 @@
 #GITIGNORE 
 #HAHA?
 
+#Virtual ENV
+venv/*
 
+
+
+#Images
 *.png
 *.jpg

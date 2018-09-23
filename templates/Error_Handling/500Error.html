@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>The Legacy.</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
+  <link href="{{ url_for('static', filename='favicon.ico') }}" rel="shortcut icon">
+</head>
+
+<body class="bg-light"> 
+<!--  <div class="container-fluid">
+    <div class="row col-xs-12 px-2 py-2">
+      <button type="button" class="btn btn-dark mr-1">Home</button>
+      <button type="button" class="btn btn-dark mr-1">Diary</button>
+      <button type="button" class="btn btn-dark mr-1">Recipes</button>
+      <button type="button" class="btn btn-dark mr-1">Ingredients</button>
+    </div>
+  </div> -->
+  <div class="container-fluid">
+    <div class="row justify-content-between pb-2 pt-3">
+      <div class="col-xs-8 pl-2 my-0 border-right border-dark">
+        <a class="text-left navbar-brand navbar-light bg-light rounded px-2 text-dark mr-0" href="#"><b>Your legacy</b></a>
+      </div>
+      <div class="col-xs-4 px-2 my-0">
+        <a class="pt-2" href="/Login_Page/"><img src="{{ url_for('static', filename='images/usersiluette.png') }}" alt="User icon" height="35"></a>
+      </div>
+    </div>
+    <div class="row bg-dark">
+      <div class="col-xs-12 col-centered px-2 py-2 mt-0 mx-auto">
+        <div class="btn-group" role="group" aria-label="Basic example">
+          <a class="btn btn-dark btn-sm border border border-light rounded-0" href="/">Home</a>
+        </div>
+      </div>
+    </div>
+    <div class="row justify-content-center">
+      <div class="col-md-8">
+        <p>Five O O</p>
+        <p>{{ error }}</p>
+      </div>
+    </div>
+  </div>
+  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script type="text/javascript" src="{{ url_for('static', filename='js/bootstrap.bundle.js') }}"></script>
+</body>
+</html>

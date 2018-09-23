@@ -1,0 +1,32 @@
+{% extends "skeleton.html" %}
+{% block body %}
+<div class="row justify-content-center">
+  <div class="col-md-8 pt-4">
+    <h4>Please login:</h4>
+    <form action="" method="post" class="pb-3">
+      <div class="form-group">
+        <label for="Login_Name">Username</label>
+        <input type="text" class="form-control" id="User_Name" aria-describedby="User_Help" placeholder="Enter Username" name="User_Name" value="{{request.form.User_Name}}">
+        <small id="User_Help" class="form-text text-muted">We'll never share your email with anyone else.</small>
+      </div>
+      <div class="form-group">
+        <label for="Login_Password">Password</label>
+        <input type="password" class="form-control" id="Login_Password" placeholder="Password" name="Login_Password" value="{{request.form.Login_Password}}">
+      </div>
+      <div class="form-group form-check">
+        <input type="checkbox" class="form-check-input" id="exampleCheck1">
+        <label class="form-check-label" for="exampleCheck1">Check me out</label>
+      </div>
+      <input type="submit" class="btn btn-success" value="Login">
+    </form>
+    <p class="text-danger"><b>{{error}}</b></p>
+  </div>
+</div>
+<hr>
+<div class="row justify-content-center">
+  <div class="col-md-8">
+    <p>In case you don't have an account, feel free to register!</p>
+    <a class="btn btn-dark border border border-light rounded" href="/Register_Page/">Register</a>
+  </div>
+</div>
+{% endblock %}

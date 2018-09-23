@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>The Legacy.</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
+  <link href="{{ url_for('static', filename='favicon.ico') }}" rel="shortcut icon">
+</head>
+
+<body class="bg-light"> 
+<!--  <div class="container-fluid">
+    <div class="row col-xs-12 px-2 py-2">
+      <button type="button" class="btn btn-dark mr-1">Home</button>
+      <button type="button" class="btn btn-dark mr-1">Diary</button>
+      <button type="button" class="btn btn-dark mr-1">Recipes</button>
+      <button type="button" class="btn btn-dark mr-1">Ingredients</button>
+    </div>
+  </div> -->
+  <div class="container-fluid">
+    <div class="row justify-content-between pb-2 pt-3">
+      <div class="col-xs-8 pl-2 my-0 border-right border-dark">
+        <a class="text-left navbar-brand navbar-light bg-light rounded px-2 text-dark mr-0" href="#"><b>Your legacy</b></a>
+      </div>
+      <div class="col-xs-4 px-2 my-0">
+        <a class="pt-2" href="/Login_Page/"><img src="{{ url_for('static', filename='images/usersiluette.png') }}" alt="User icon" height="35"></a>
+      </div>
+    </div>
+    <div class="row bg-dark">
+      <div class="col-xs-12 col-centered px-2 py-2 mt-0 mx-auto">
+        <div class="btn-group" role="group" aria-label="Basic example">
+          <a class="btn btn-dark border border border-light rounded-0" href="/">Home</a>
+          <div class="dropdown">
+            <a data-target="#" href="page.html" data-toggle="dropdown" class="dropdown-toggle btn btn-dark border border-light rounded-0 dropdown-toggle">Track<b class="caret"></b></a>
+              <ul class="dropdown-menu">
+                  <li>
+                  {% for p in PAGE_DICTIONARY["Track"] %}
+                  <a class="dropdown-item" href="{{p[1]}}">{{ p[0] }}</a>
+                    {% if p[0] == "Track intake" or p[0] == "Add ingredient" %}
+                    <div class="dropdown-divider"></div>
+                    {% endif %}
+                  {% endfor %}
+                  </li>
+              </ul>   
+          </div>
+          <div class="dropdown">
+            <a data-target="#" href="page.html" data-toggle="dropdown" class="dropdown-toggle btn btn-dark border border-light rounded-0 dropdown-toggle">Workout<b class="caret"></b></a>
+              <ul class="dropdown-menu">
+                  <li>
+                  {% for p in PAGE_DICTIONARY["Workout"] %}
+                  <a class="dropdown-item" href="{{p[1]}}">{{ p[0] }}</a>
+                  {% endfor %}
+                  </li>
+              </ul>   
+          </div>
+          <div class="dropdown">
+            <a data-target="#" href="page.html" data-toggle="dropdown" class="dropdown-toggle btn btn-dark border border-light rounded-0 rounded-right dropdown-toggle">Social<b class="caret"></b></a>
+              <ul class="dropdown-menu dropdown-menu-right">
+                  <li>
+                  {% for p in PAGE_DICTIONARY["Social"] %}
+                  <a class="dropdown-item" href="{{p[1]}}">{{ p[0] }}</a>
+                  {% endfor %}
+                  </li>
+              </ul>   
+          </div>
+        </div>
+      </div>
+    </div>
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        {% for message in messages %}
+          <div class="alert alert-warning alert-dismissable" role="alert">
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            {{message}}
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+    {% block body %}{% endblock %}
+    
+  </div>
+  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script type="text/javascript" src="{{ url_for('static', filename='js/bootstrap.bundle.js') }}"></script>
+</body>
+</html>

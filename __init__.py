@@ -9,9 +9,13 @@ from MySQLdb import escape_string as thwart
 from passlib.hash import sha256_crypt
 import gc
 
+from flask_mail import Mail, Message
+from itsdangerous import URLSafeTimedSerializer
+
 from functions import Registration_Checker
 
 import datetime
+
 
 
 
@@ -27,8 +31,32 @@ import gc
 #Import Content management dictionary, to be able to dynamically do stuff
 PAGE_DICTIONARY = Content()
 """
+#####################################
+### APP SETUP #######################
+#####################################
+
 app = Flask(__name__)
+
+app.config.update(dict(
+    DEBUG = True,
+    #EMAIL SETTINGS
+    MAIL_SERVER='smtp.gmail.com',
+    MAIL_PORT=587,
+    MAIL_USE_SSL=False,
+    MAIL_USE_TLS=True,
+    MAIL_USERNAME = 'vertike@gmail.com',
+    MAIL_PASSWORD = 'arti1234567890'  
+))
+
+mail = Mail(app)
+
+
+#TODO: GET confirmation e-mail working
+tokenizer = URLSafeTimedSerializer("Secret TOKEN!")
+
 PAGE_DICTIONARY = Content()
+
+
 ###############################
 ### LOGIN WRAPPER #############
 ###############################
@@ -79,11 +107,11 @@ def Login_Page():
             else:
                 error = "Invalid Credentials. Try Again."       
         gc.collect()
-        return render_template("Login_Page.html", PAGE_DICTIONARY = PAGE_DICTIONARY, error = error)        
+        return render_template("User_System/Login_Page.html", PAGE_DICTIONARY = PAGE_DICTIONARY, error = error)        
     except Exception as e:
         #flash(e)
         error = "Invalid Credentials. Try Again."
-        return render_template("Login_Page.html", PAGE_DICTIONARY = PAGE_DICTIONARY, error = error)
+        return render_template("User_System/Login_Page.html", PAGE_DICTIONARY = PAGE_DICTIONARY, error = error)
 
 #TODO: Haha
 ### Register ###
@@ -125,7 +153,7 @@ def Register_Page():
                                          attempted_password, attempted_repassword,
                                          attempted_accept)
             if error != "":
-                render_template("Register_Page.html", PAGE_DICTIONARY = PAGE_DICTIONARY, error = error)
+                render_template("User_System/Register_Page.html", PAGE_DICTIONARY = PAGE_DICTIONARY, error = error)
             #####################################
             ### PASSWORD ENCRYPTION #############
             #####################################
@@ -146,17 +174,52 @@ def Register_Page():
                                thwart(encrypted_password), thwart(attempted_email), datetime.datetime.today(),
                                datetime.datetime.today(), 0, 0, 0])
                     conn.commit()
+                    token = tokenizer.dumps(attempted_email, salt = "Email-confirm_HAHA")
+                    c.execute("SELECT User_ID FROM Users WHERE User_Name = (%s)", [attempted_username])
+                    User_ID = c.fetchone()
+                    flash(User_ID[0])
+                    #flash(token)
+                    #flash(tokenizer.loads(token, salt = "Email-confirm_HAHA", max_age = 3600))
+                    msg = Message("Hello World",
+                                  sender="vertike@gmail.com",
+                                  recipients=["vertikegroup@gmail.com"])
+                    msg.body = ("Link: " + str(token) + ". UserID: " + str(User_ID[0]))
+                    mail.send(msg)
                     flash("Thanks for registering")
                     c.close()
                     conn.close()
                     gc.collect()
                     session["Logged_In"] = True
                     session["User_Name"] = attempted_username
-                    return redirect(url_for("homepage"))
-        return render_template("Register_Page.html", PAGE_DICTIONARY = PAGE_DICTIONARY, error = error)
+                    return redirect(url_for("Succesful_Registration"))
+        return render_template("User_System/Register_Page.html", PAGE_DICTIONARY = PAGE_DICTIONARY, error = error)
     except Exception as e:
         flash(e)
-        return render_template("Register_Page.html", PAGE_DICTIONARY = PAGE_DICTIONARY, error = error)
+        return render_template("User_System/Register_Page.html", PAGE_DICTIONARY = PAGE_DICTIONARY, error = error)
+
+##############################
+### CONFIRMATION WAS SENT ####
+##############################
+
+
+@app.route("/Succesful_Registration/")
+def Succesful_Registration():
+    return render_template("User_System/Succesful_Registration.html", PAGE_DICTIONARY = PAGE_DICTIONARY)
+
+
+@app.route("/Confirm_Email/<token>")
+def Confirm_Email(token):
+    error = ""
+    try:
+        c, conn = connection()
+        if email == tokenizer.loads(token, salt = "Email-confirm_HAHA", max_age = 3600):
+            return render_template("User_System/Confrim_Email.html", PAGE_DICTIONARY = PAGE_DICTIONARY)
+        else:
+            error = "Haha SG WRONG!"
+            return render_template("User_System/Confrim_Email.html", PAGE_DICTIONARY = PAGE_DICTIONARY, error = error)
+    except Exception as e:
+        flash(e)
+        return render_template("User_System/Confrim_Email.html", PAGE_DICTIONARY = PAGE_DICTIONARY)
 
 ### Logout
 
@@ -197,4 +260,4 @@ def slashboard():
 
 #TODO: Here is the RUNNING command
 if __name__ == "__main__":
-    app.run()
+    app.run(debug=True)

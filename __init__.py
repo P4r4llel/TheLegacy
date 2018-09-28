@@ -10,7 +10,7 @@ from passlib.hash import sha256_crypt
 import gc
 
 from flask_mail import Mail, Message
-from itsdangerous import URLSafeTimedSerializer
+from itsdangerous import URLSafeTimedSerializer, SignatureExpired
 
 from functions import Registration_Checker
 
@@ -175,15 +175,20 @@ def Register_Page():
                                datetime.datetime.today(), 0, 0, 0])
                     conn.commit()
                     token = tokenizer.dumps(attempted_email, salt = "Email-confirm_HAHA")
-                    c.execute("SELECT User_ID FROM Users WHERE User_Name = (%s)", [attempted_username])
-                    User_ID = c.fetchone()
-                    flash(User_ID[0])
+                    c.execute("SELECT * FROM Users WHERE User_Name = (%s)", [attempted_username])
+                    User_Data = c.fetchall()
+                    User_ID = User_Data[0][0]
+                    flash(User_Data)
+                    flash(User_ID)
                     #flash(token)
                     #flash(tokenizer.loads(token, salt = "Email-confirm_HAHA", max_age = 3600))
+                    #TODO: Make a nice email
                     msg = Message("Hello World",
                                   sender="vertike@gmail.com",
                                   recipients=["vertikegroup@gmail.com"])
-                    msg.body = ("Link: " + str(token) + ". UserID: " + str(User_ID[0]))
+                    msg.body = ("Dear " + User_Data[0][2] + "\r\n \r\n"
+                               + "Here is your activation link: \r\n"
+                               + "http://142.93.232.189/Confirm_Email/?token=" + str(token) + "&userid=" + str(User_ID))
                     mail.send(msg)
                     flash("Thanks for registering")
                     c.close()
@@ -206,20 +211,33 @@ def Register_Page():
 def Succesful_Registration():
     return render_template("User_System/Succesful_Registration.html", PAGE_DICTIONARY = PAGE_DICTIONARY)
 
-
-@app.route("/Confirm_Email/<token>")
-def Confirm_Email(token):
+#TODO: Overwrite Activated >>> IMPORTANT
+@app.route("/Confirm_Email/", methods = ["GET", "POST"])
+def Confirm_Email():
     error = ""
     try:
         c, conn = connection()
-        if email == tokenizer.loads(token, salt = "Email-confirm_HAHA", max_age = 3600):
-            return render_template("User_System/Confrim_Email.html", PAGE_DICTIONARY = PAGE_DICTIONARY)
+        User_ID = request.args.get("userid", None)
+        token = request.args.get("token", None)
+        c.execute("SELECT E_Mail FROM Users WHERE User_ID = (%s)", [User_ID])
+        User_E_Mail = c.fetchone()[0]
+        if User_E_Mail == tokenizer.loads(token, salt = "Email-confirm_HAHA", max_age = 7200):
+            c.execute("UPDATE Users SET User_Activated=1 WHERE User_ID = (%s)", [User_ID])
+            conn.commit()
+            c.close()
+            conn.close()
+            gc.collect()
+            flash("TOKEN WORKS; U r activated")
+            return redirect (url_for("homepage"))
         else:
-            error = "Haha SG WRONG!"
-            return render_template("User_System/Confrim_Email.html", PAGE_DICTIONARY = PAGE_DICTIONARY, error = error)
+            error = "User_ID is: " + str(User_ID) + ". Token is: " + str(token)
+            return render_template("User_System/Confirm_Email.html", PAGE_DICTIONARY = PAGE_DICTIONARY, error = error)
+    except SignatureExpired:
+        #TODO: Fix this, to make it beautiful
+        return "The token has expired"
     except Exception as e:
         flash(e)
-        return render_template("User_System/Confrim_Email.html", PAGE_DICTIONARY = PAGE_DICTIONARY)
+        return render_template("User_System/Confirm_Email.html", PAGE_DICTIONARY = PAGE_DICTIONARY, error = error)
 
 ### Logout
 
